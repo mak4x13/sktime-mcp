@@ -31,6 +31,7 @@ from sktime_mcp.tools.instantiate import (
 )
 from sktime_mcp.tools.fit_predict import (
     fit_predict_tool,
+    fit_predict_async_tool,
     fit_tool,
     predict_tool,
     list_datasets_tool,
@@ -46,6 +47,13 @@ from sktime_mcp.tools.data_tools import (
 from sktime_mcp.tools.format_tools import (
     format_time_series_tool,
     auto_format_on_load_tool,
+)
+from sktime_mcp.tools.job_tools import (
+    check_job_status_tool,
+    list_jobs_tool,
+    cancel_job_tool,
+    delete_job_tool,
+    cleanup_old_jobs_tool,
 )
 from sktime_mcp.composition.validator import get_composition_validator
 
@@ -176,6 +184,29 @@ async def list_tools() -> List[Tool]:
             },
         ),
         Tool(
+            name="fit_predict_async",
+            description="Fit an estimator on a dataset and generate predictions (non-blocking background job)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "estimator_handle": {
+                        "type": "string",
+                        "description": "Handle from instantiate_estimator",
+                    },
+                    "dataset": {
+                        "type": "string",
+                        "description": "Dataset name: airline, sunspots, lynx, etc.",
+                    },
+                    "horizon": {
+                        "type": "integer",
+                        "description": "Forecast horizon (default: 12)",
+                        "default": 12,
+                    },
+                },
+                "required": ["estimator_handle", "dataset"],
+            },
+        ),
+        Tool(
             name="validate_pipeline",
             description="Check if a pipeline composition is valid",
             inputSchema={
@@ -244,13 +275,13 @@ async def list_tools() -> List[Tool]:
         ),
         Tool(
             name="load_data_source",
-            description="Load data from various sources (pandas DataFrame, SQL database, CSV/Excel/Parquet file)",
+            description="Load data from various sources (pandas DataFrame, SQL database, CSV/Excel/Parquet file, Web URL)",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "config": {
                         "type": "object",
-                        "description": "Data source configuration with 'type' key (pandas, sql, file) and type-specific options",
+                        "description": "Data source configuration with 'type' key (pandas, sql, file, url) and type-specific options",
                     },
                 },
                 "required": ["config"],
@@ -347,6 +378,80 @@ async def list_tools() -> List[Tool]:
                 "required": ["enabled"],
             },
         ),
+        Tool(
+            name="check_job_status",
+            description="Check the status and progress of a background job",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "job_id": {
+                        "type": "string",
+                        "description": "Job ID to check",
+                    },
+                },
+                "required": ["job_id"],
+            },
+        ),
+        Tool(
+            name="list_jobs",
+            description="List all background jobs with optional status filter",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Filter by status: pending, running, completed, failed, cancelled",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of jobs to return (default: 20)",
+                        "default": 20,
+                    },
+                },
+            },
+        ),
+        Tool(
+            name="cancel_job",
+            description="Cancel a running or pending background job",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "job_id": {
+                        "type": "string",
+                        "description": "Job ID to cancel",
+                    },
+                },
+                "required": ["job_id"],
+            },
+        ),
+        Tool(
+            name="delete_job",
+            description="Delete a job from the job manager",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "job_id": {
+                        "type": "string",
+                        "description": "Job ID to delete",
+                    },
+                },
+                "required": ["job_id"],
+            },
+        ),
+        Tool(
+            name="cleanup_old_jobs",
+            description="Remove jobs older than specified hours",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "max_age_hours": {
+                        "type": "integer",
+                        "description": "Maximum age in hours (default: 24)",
+                        "default": 24,
+                    },
+                },
+            },
+        ),
     ]
 
 
@@ -427,6 +532,25 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
             )
         elif name == "auto_format_on_load":
             result = auto_format_on_load_tool(arguments["enabled"])
+        elif name == "fit_predict_async":
+            result = fit_predict_async_tool(
+                arguments["estimator_handle"],
+                arguments["dataset"],
+                arguments.get("horizon", 12),
+            )
+        elif name == "check_job_status":
+            result = check_job_status_tool(arguments["job_id"])
+        elif name == "list_jobs":
+            result = list_jobs_tool(
+                arguments.get("status"),
+                arguments.get("limit", 20),
+            )
+        elif name == "cancel_job":
+            result = cancel_job_tool(arguments["job_id"])
+        elif name == "delete_job":
+            result = delete_job_tool(arguments["job_id"])
+        elif name == "cleanup_old_jobs":
+            result = cleanup_old_jobs_tool(arguments.get("max_age_hours", 24))
         else:
             result = {"error": f"Unknown tool: {name}"}
         

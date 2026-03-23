@@ -44,6 +44,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Use Cases: use-cases.md
   - User Guide: user-guide.md
   - Usage Examples: usage-examples.md
   - Data Sources: data-sources.md

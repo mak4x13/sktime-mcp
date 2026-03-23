@@ -1,3 +1,4 @@
+
 # sktime-mcp
 
 <div class="hero-text">
@@ -8,36 +9,22 @@
   </p>
 </div>
 
-!!! success "Why sktime-mcp?"
-    Bridging the gap between **LLM reasoning** and **time-series precision**. 
-    Instead of hallucinating Python code, your agent interacts with a strictly typed, 
-    safe, and stateful API to perform complex forecasting tasks.
+> **Why sktime-mcp?**
+> Bridging the gap between **LLM reasoning** and **time-series precision**. 
+> Instead of hallucinating Python code, your agent interacts with a strictly typed, 
+> safe, and stateful API to perform complex forecasting tasks.
 
 ---
 
 ## 🔥 Key Features
 
-<div class="grid cards" markdown>
-
--   :material-compass-outline: **Semantic Discovery**
-    ---
-    Find the perfect estimator using semantic similarity and capability tags (e.g., "probabilistic forecaster that handles missing data").
-
--   :material-puzzle-outline: **Safe Composition**
-    ---
-    Build complex pipelines (Transformer → Forecaster) with built-in validation to ensure components are compatible before execution.
-
--   :material-database-outline: **Universal Data Loading**
-    ---
-    Seamlessly ingest data from **SQL Databases**, **Pandas DataFrames**, **Parquet**, **Excel**, and **CSV** files.
-
--   :material-flash-outline: **Execution Runtime**
-    ---
-    Stateful execution engine that manages object lifecycles, fitting, and predicting, all via simple JSON-RPC tools.
-
-</div>
+- **Semantic Discovery:** Find the perfect estimator using semantic similarity and capability tags (e.g., "probabilistic forecaster that handles missing data").
+- **Safe Composition:** Build complex pipelines (Transformer → Forecaster) with built-in validation to ensure components are compatible before execution.
+- **Universal Data Loading:** Seamlessly ingest data from SQL, Pandas, Parquet, Excel, and CSV files.
+- **Execution Runtime:** Stateful engine that manages object lifecycles, fitting, and predicting, all via simple JSON-RPC tools.
 
 ---
+
 
 ## ⚡ Quick Start
 
@@ -45,7 +32,12 @@ Get up and running in seconds. Use with **Claude Desktop**, **Cursor**, or any M
 
 ### 1. Install
 ```bash
-pip install -e ".[all]"
+git clone https://github.com/Shashankss1205/sktime-mcp.git
+cd sktime-mcp
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
 ```
 
 ### 2. Run
@@ -67,11 +59,14 @@ Add this to your `claude_desktop_config.json`:
 
 ---
 
+
 ## 📚 Documentation Map
 
 | Section | Description |
 | :--- | :--- |
+| [**Use Cases**](use-cases.md) | Step-by-step workflows for coders and business users. |
 | [**User Guide**](user-guide.md) | Comprehensive manual on using tools, workflows, and best practices. |
+| [**Usage Examples**](usage-examples.md) | Example scripts and advanced usage patterns. |
 | [**Data Sources**](data-sources.md) | Deep dive into loading data from SQL, Files, and Pandas. |
 | [**Architecture**](architecture.md) | High-level system design, data flow, and limitations. |
 | [**Implementation**](implementation.md) | Detailed code walkthrough and file breakdown. |
@@ -79,12 +74,10 @@ Add this to your `claude_desktop_config.json`:
 
 ---
 
-## 🚀 Example Workflow
 
-1.  **Discover**: "Find me a model that handles missing data."
-2.  **Load**: "Load `sales_data.csv`."
-3.  **Train**: "Fit an AutoARIMA model on the data."
-4.  **Predict**: "Forecast the next 12 months."
-5.  **Export**: "Give me the Python code to reproduce this."
+## 🚀 Get Started
 
-[Get Started Now](user-guide.md){ .md-button .md-button--primary }
+- See [Use Cases](use-cases.md) for step-by-step workflows.
+- See [User Guide](user-guide.md) for detailed instructions and advanced features.
+
+[Get Started Now](use-cases.md){ .md-button .md-button--primary }

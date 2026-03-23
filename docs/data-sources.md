@@ -4,46 +4,12 @@ sktime-mcp now supports loading data from multiple sources beyond the built-in d
 
 ## Supported Data Sources
 
-1. **Pandas DataFrames** - In-memory data
-2. **SQL Databases** - PostgreSQL, MySQL, SQLite, MSSQL
-3. **Files** - CSV, TSV, Excel, Parquet
+1. **SQL Databases** - PostgreSQL, MySQL, SQLite, MSSQL
+2. **Files** - CSV, TSV, Excel, Parquet
 
 ## Quick Start
 
-### 1. Pandas DataFrame
-
-```python
-from sktime_mcp.runtime.executor import get_executor
-import pandas as pd
-
-# Create your data
-df = pd.DataFrame({
-    'date': pd.date_range(start='2020-01-01', periods=100, freq='D'),
-    'sales': [100 + i for i in range(100)],
-})
-
-# Load data
-executor = get_executor()
-result = executor.load_data_source({
-    "type": "pandas",
-    "data": df,  # Can also be a dict
-    "time_column": "date",
-    "target_column": "sales",
-})
-
-# Get data handle
-data_handle = result['data_handle']
-
-# Instantiate model and predict
-est_result = executor.instantiate("NaiveForecaster", {"strategy": "last"})
-predictions = executor.fit_predict_with_data(
-    estimator_handle=est_result['handle'],
-    data_handle=data_handle,
-    horizon=7,
-)
-```
-
-### 2. CSV File
+### 1. CSV File
 
 ```python
 result = executor.load_data_source({
@@ -55,7 +21,7 @@ result = executor.load_data_source({
 })
 ```
 
-### 3. SQL Database
+### 2. SQL Database
 
 ```python
 # SQLite

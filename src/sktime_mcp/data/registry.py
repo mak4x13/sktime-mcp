@@ -6,7 +6,7 @@ Manages registration and creation of data source adapters.
 
 from typing import Dict, Type, Optional
 from .base import DataSourceAdapter
-from .adapters import PandasAdapter, SQLAdapter, FileAdapter
+from .adapters import PandasAdapter, SQLAdapter, FileAdapter, UrlAdapter
 
 
 class DataSourceRegistry:
@@ -20,6 +20,7 @@ class DataSourceRegistry:
         "pandas": PandasAdapter,
         "sql": SQLAdapter,
         "file": FileAdapter,
+        "url": UrlAdapter,
     }
     
     @classmethod

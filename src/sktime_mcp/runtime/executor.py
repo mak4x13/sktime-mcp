@@ -10,9 +10,11 @@ import pandas as pd
 import numpy as np
 import logging
 import uuid
+import asyncio
 
 from sktime_mcp.registry.interface import get_registry
 from sktime_mcp.runtime.handles import get_handle_manager
+from sktime_mcp.runtime.jobs import get_job_manager, JobStatus
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,7 @@ class Executor:
     def __init__(self):
         self._registry = get_registry()
         self._handle_manager = get_handle_manager()
+        self._job_manager = get_job_manager()
         self._data_handles = {}  # Store data handles
     
     def instantiate(
@@ -187,6 +190,138 @@ class Executor:
             return fit_result
         
         return self.predict(handle_id, fh=fh, X=X)
+    
+    async def fit_predict_async(
+        self,
+        handle_id: str,
+        dataset: str,
+        horizon: int = 12,
+        job_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Async version of fit_predict with job tracking.
+        
+        This method runs the training in the background without blocking the MCP server.
+        Progress is tracked via the JobManager.
+        
+        Args:
+            handle_id: Estimator handle
+            dataset: Dataset name
+            horizon: Forecast horizon
+            job_id: Optional job ID for tracking (created if not provided)
+        
+        Returns:
+            Dictionary with success status and job_id
+        """
+        # Get estimator info for job tracking
+        try:
+            handle_info = self._handle_manager.get_info(handle_id)
+            estimator_name = handle_info.estimator_name
+        except Exception as e:
+            logger.warning(f"Could not get estimator name: {e}")
+            estimator_name = "Unknown"
+        
+        # Create job if not provided
+        if job_id is None:
+            job_id = self._job_manager.create_job(
+                job_type="fit_predict",
+                estimator_handle=handle_id,
+                estimator_name=estimator_name,
+                dataset_name=dataset,
+                horizon=horizon,
+                total_steps=3,  # load data, fit, predict
+            )
+        
+        try:
+            # Update status to RUNNING
+            self._job_manager.update_job(job_id, status=JobStatus.RUNNING)
+            
+            # Step 1: Load dataset
+            self._job_manager.update_job(
+                job_id,
+                completed_steps=0,
+                current_step=f"Loading dataset '{dataset}'..."
+            )
+            await asyncio.sleep(0.01)  # Yield control to event loop
+            
+            data_result = self.load_dataset(dataset)
+            if not data_result["success"]:
+                self._job_manager.update_job(
+                    job_id,
+                    status=JobStatus.FAILED,
+                    errors=[f"Failed to load dataset: {data_result.get('error')}"]
+                )
+                return data_result
+            
+            y = data_result["data"]
+            X = data_result.get("exog")
+            fh = list(range(1, horizon + 1))
+            
+            # Step 2: Fit model
+            self._job_manager.update_job(
+                job_id,
+                completed_steps=1,
+                current_step=f"Fitting {estimator_name} on {dataset}..."
+            )
+            await asyncio.sleep(0.01)  # Yield control
+            
+            # Run fit in executor to avoid blocking
+            loop = asyncio.get_event_loop()
+            fit_result = await loop.run_in_executor(
+                None,
+                lambda: self.fit(handle_id, y, X=X, fh=fh)
+            )
+            
+            if not fit_result["success"]:
+                self._job_manager.update_job(
+                    job_id,
+                    status=JobStatus.FAILED,
+                    errors=[f"Fit failed: {fit_result.get('error')}"]
+                )
+                return fit_result
+            
+            # Step 3: Generate predictions
+            self._job_manager.update_job(
+                job_id,
+                completed_steps=2,
+                current_step=f"Generating predictions (horizon={horizon})..."
+            )
+            await asyncio.sleep(0.01)  # Yield control
+            
+            # Run predict in executor
+            predict_result = await loop.run_in_executor(
+                None,
+                lambda: self.predict(handle_id, fh=fh, X=X)
+            )
+            
+            if not predict_result["success"]:
+                self._job_manager.update_job(
+                    job_id,
+                    status=JobStatus.FAILED,
+                    errors=[f"Prediction failed: {predict_result.get('error')}"]
+                )
+                return predict_result
+            
+            # Mark as completed
+            self._job_manager.update_job(
+                job_id,
+                status=JobStatus.COMPLETED,
+                completed_steps=3,
+                current_step="Completed",
+                result=predict_result
+            )
+            
+            return predict_result
+        
+        except Exception as e:
+            logger.exception(f"Error in async fit_predict for job {job_id}")
+            self._job_manager.update_job(
+                job_id,
+                status=JobStatus.FAILED,
+                errors=[str(e)]
+            )
+            return {"success": False, "error": str(e), "job_id": job_id}
+    
     
     # L-9: We can add more methods here to handle diverse use cases and their pipelines
     def instantiate_pipeline(

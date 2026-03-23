@@ -40,7 +40,7 @@ python -m sktime_mcp.server
 ```
 
 !!! tip "Client Configuration"
-    Ensure your MCP client (e.g., Claude Desktop) is configured to run this command. See the [README](index.md) for configuration examples.
+    Ensure your MCP client (e.g., Claude Desktop) is configured to run this command. See the [official VSCode guidelines](https://code.visualstudio.com/docs/copilot/customization/mcp-servers#_configure-the-mcpjson-file) for configuration examples.
 
 ---
 
@@ -62,7 +62,9 @@ The `sktime-mcp` server exposes a suite of tools designed for Large Language Mod
 
 ### 1. The "Hello World" of Forecasting
 
-Standard workflow for forecasting on a demo dataset.
+#### Query - Run forecasting on a demo dataset.
+
+#### Response - Standard workflow followed by SKtime MCP for forecasting on a demo dataset.
 
 **Step 1: Discover Data**
 ```json
@@ -88,7 +90,9 @@ Standard workflow for forecasting on a demo dataset.
 
 ### 2. Advanced Pipeline Composition
 
-Create sophisticated pipelines without writing complex code.
+#### Query - Create sophisticated pipelines without writing complex code.
+
+#### Response - Standard workflow followed by SKtime MCP. 
 
 **Step 1: Validate Pipeline**
 Check if components work together (e.g., Deseasonalizer -> Detrender -> ARIMA).
@@ -118,7 +122,6 @@ Bring your own data into the MCP server.
 
 ### Supported Sources
 
-*   **Pandas DataFrame** (via code injection)
 *   **Local Files**: CSV, Parquet, Excel
 *   **SQL Databases**: PostgreSQL, SQLite, etc.
 
