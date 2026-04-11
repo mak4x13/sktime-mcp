@@ -31,6 +31,32 @@ This MCP is **not** just documentation or static code analysis. It is a **semant
 
 ## 🛠️ Installation
 
+### Virtual Environment Setup
+
+It is recommended to use a virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### Package Installation
+
+The recommended way to install is using `python3 -m pip`:
+
+```bash
+# Install from source
+python3 -m pip install -e .
+
+# With all optional dependencies
+python3 -m pip install -e ".[all]"
+
+# Development installation
+python3 -m pip install -e ".[dev]"
+```
+
+Alternatively, you can use `pip`:
+
 ```bash
 # Install from source
 pip install -e .
@@ -64,6 +90,9 @@ sktime-mcp
 > **Note:** On Windows, the `sktime-mcp` command may be installed to a directory
 > not on your `PATH` (e.g., `%APPDATA%\Python\Python3xx\Scripts`). Either add
 > that directory to your `PATH` or use `python -m sktime_mcp.server` instead.
+
+**Note:** On some systems (like macOS), `pip` may not be available in the path. In such cases, use `python3 -m pip` to ensure the command runs with the intended Python version.
+
 
 ## 🚀 Quick Start
 
