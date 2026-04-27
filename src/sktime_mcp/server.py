@@ -26,6 +26,18 @@ from sktime_mcp.tools.describe_estimator import describe_estimator_tool
 from sktime_mcp.tools.evaluate import evaluate_estimator_tool
 from sktime_mcp.tools.fit_predict import (
     fit_predict_async_tool,
+    fit_tool,
+    predict_tool,
+    list_datasets_tool,
+)
+from sktime_mcp.tools.codegen import export_code_tool
+from sktime_mcp.tools.data_tools import (
+    load_data_source_tool,
+    load_data_source_async_tool,
+    list_data_sources_tool,
+    fit_predict_with_data_tool,
+    list_data_handles_tool,
+    release_data_handle_tool,
     fit_predict_tool,
 )
 from sktime_mcp.tools.format_tools import format_time_series_tool
@@ -647,7 +659,6 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         # -- Data ------------------------------------------------------------
         elif name == "list_available_data":
             result = list_available_data_tool(arguments.get("is_demo"))
-
         elif name == "load_data_source":
             result = load_data_source_tool(arguments["config"])
 
