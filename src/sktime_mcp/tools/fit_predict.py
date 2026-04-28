@@ -11,6 +11,32 @@ from sktime_mcp.runtime.executor import get_executor
 
 logger = logging.getLogger(__name__)
 
+def _validate_horizon(horizon: int) -> dict[str,Any]:
+    """
+    Validate the horizon parameter.
+    Checks if the horizon parameter is strictly integer or not
+    Checks if the horizon parameter is greater than 0 or not
+    """
+    warnings = []
+    if not isinstance(horizon, int):
+        return {
+            "valid": False,
+            "error": (
+                f"'horizon' must be an integer, got {type(horizon).__name__}. "
+                f'Example: {{"horizon": 12}}'
+            ),
+            "warnings":warnings,  
+        }
+    if horizon <= 0:
+        return {
+            "valid": False,
+            "error": (
+                f"'horizon' must be greater than 0, got {horizon}. "
+                f'Example: {{"horizon": 12}}'
+            ),
+            "warnings":warnings,
+        }
+    return {"valid": True, "warnings": warnings}
 
 def fit_predict_tool(
     estimator_handle: str,
@@ -41,6 +67,11 @@ def fit_predict_tool(
             "horizon": 12
         }
     """
+    validation = _validate_horizon(horizon)
+    if not validation["valid"]:
+        return {
+            "success": False,
+            "error": validation["error"],
     if dataset and data_handle:
         return {
             "success": False,
@@ -99,6 +130,12 @@ def predict_tool(
     Returns:
         Dictionary with predictions
     """
+    validation = _validate_horizon(horizon)
+    if not validation["valid"]:
+        return {
+            "success": False,
+            "error": validation["error"],
+        }
     executor = get_executor()
     fh = list(range(1, horizon + 1))
     return executor.predict(estimator_handle, fh=fh)
@@ -149,6 +186,12 @@ def fit_predict_async_tool(
         >>> fit_predict_async_tool("est_abc123", dataset="airline", horizon=12)
         >>> fit_predict_async_tool("est_abc123", data_handle="data_xyz", horizon=5)
     """
+    validation = _validate_horizon(horizon)
+    if not validation["valid"]:
+        return {
+            "success": False,
+            "error": validation["error"],
+        }
     if dataset and data_handle:
         return {
             "success": False,
@@ -218,3 +261,6 @@ def fit_predict_async_tool(
         "data_source": source_name,
         "horizon": horizon,
     }
+
+
+
