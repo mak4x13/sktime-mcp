@@ -57,6 +57,15 @@ def load_data_source_tool(config: dict[str, Any]) -> dict[str, Any]:
         ... })
     """
     executor = get_executor()
+    from sktime_mcp.tools.data_schemas import validate_config
+    validation = validate_config(config)
+    if not validation["valid"]:
+        return {
+            "success": False,
+            "error": validation["error"],
+            "missing_fields": validation["missing_fields"],
+            "suggestion": validation["suggestion"],
+        }
     return executor.load_data_source(config)
 
 
