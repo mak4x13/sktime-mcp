@@ -131,7 +131,7 @@ results.append(
 total = len(results)
 passed = sum(results)
 failed = total - passed
-print(f"\n{'='*60}")
+print(f"\n{'=' * 60}")
 print(f"Results: {passed}/{total} passed" + (" 🎉" if failed == 0 else f", {failed} FAILED ❌"))
-print(f"{'='*60}")
+print(f"{'=' * 60}")
 sys.exit(0 if failed == 0 else 1)

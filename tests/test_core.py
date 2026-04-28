@@ -165,9 +165,9 @@ class TestTools:
 
         assert result["success"]
         assert result["total"] > 0, "There should be detection estimators"
-        assert all(
-            e["task"] == "detection" for e in result["estimators"]
-        ), "All returned estimators should have task='detection'"
+        assert all(e["task"] == "detection" for e in result["estimators"]), (
+            "All returned estimators should have task='detection'"
+        )
 
     def test_detection_in_available_tasks(self):
         """Test that detection appears in available tasks."""

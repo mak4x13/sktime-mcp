@@ -32,7 +32,7 @@ def _validate_horizon(horizon: int) -> dict[str, Any]:
         return {
             "valid": False,
             "error": (
-                f"'horizon' must be greater than 0, got {horizon}. " f'Example: {{"horizon": 12}}'
+                f"'horizon' must be greater than 0, got {horizon}. Example: {{\"horizon\": 12}}"
             ),
             "warnings": warnings,
         }
