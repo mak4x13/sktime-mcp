@@ -66,7 +66,10 @@ def load_data_source_tool(config: dict[str, Any]) -> dict[str, Any]:
             "missing_fields": validation["missing_fields"],
             "suggestion": validation["suggestion"],
         }
-    return executor.load_data_source(config)
+    result = executor.load_data_source(config)
+    if "validation" not in result:
+        result["validation"] = validation
+    return result
 
 
 def list_data_sources_tool() -> dict[str, Any]:
